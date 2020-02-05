@@ -218,9 +218,9 @@ function createMessageDefinition(
   message: Protobuf.Type,
   fileDescriptors: Buffer[]
 ): MessageTypeDefinition {
-  const messageDescriptor: protobuf.Message<
-    descriptor.IDescriptorProto
-  > = message.toDescriptor('proto3');
+  const messageDescriptor: protobuf.Message<descriptor.IDescriptorProto> = message.toDescriptor(
+    'proto3'
+  );
   return {
     format: 'Protocol Buffer 3 DescriptorProto',
     type: messageDescriptor.$type.toObject(
@@ -235,9 +235,9 @@ function createEnumDefinition(
   enumType: Protobuf.Enum,
   fileDescriptors: Buffer[]
 ): EnumTypeDefinition {
-  const enumDescriptor: protobuf.Message<
-    descriptor.IEnumDescriptorProto
-  > = enumType.toDescriptor('proto3');
+  const enumDescriptor: protobuf.Message<descriptor.IEnumDescriptorProto> = enumType.toDescriptor(
+    'proto3'
+  );
   return {
     format: 'Protocol Buffer 3 EnumDescriptorProto',
     type: enumDescriptor.$type.toObject(enumDescriptor, descriptorOptions),
@@ -365,26 +365,4 @@ export function loadSync(
   const loadedRoot = root.loadSync(filename, options);
   loadedRoot.resolveAll();
   return createPackageDefinition(root, options!);
-}
-
-// Load Google's well-known proto files that aren't exposed by Protobuf.js.
-{
-  // Protobuf.js exposes: any, duration, empty, field_mask, struct, timestamp,
-  // and wrappers. compiler/plugin is excluded in Protobuf.js and here.
-  const wellKnownProtos = ['api', 'descriptor', 'source_context', 'type'];
-  const sourceDir = path.join(
-    path.dirname(require.resolve('protobufjs')),
-    'google',
-    'protobuf'
-  );
-
-  for (const proto of wellKnownProtos) {
-    const file = path.join(sourceDir, `${proto}.proto`);
-    const descriptor = Protobuf.loadSync(file).toJSON();
-
-    Protobuf.common(
-      proto,
-      (descriptor.nested!.google as Protobuf.INamespace).nested!
-    );
-  }
 }
